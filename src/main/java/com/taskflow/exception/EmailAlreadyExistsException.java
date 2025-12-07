@@ -1,9 +1,9 @@
 package com.taskflow.exception;
 
 public class EmailAlreadyExistsException extends RuntimeException {
-    public EmailAlreadyExistsException(String message) {
+    public EmailAlreadyExistsException(String email) {
         super(
-                "Email already exists: " + message
+                "Email already exists: " + email
         );
     }
 }
