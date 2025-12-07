@@ -22,6 +22,15 @@ public class AuthController {
         this.userService = userService;
     }
 
+    /**
+     * Register new user
+     *
+     * POST /api/auth/register
+     *
+     * @param request Registration data from client
+     *
+     * @return 201 Created + UserReponse
+     */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request){
         UserResponse response = userService.register(request);
