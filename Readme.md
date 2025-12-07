@@ -132,8 +132,5 @@ MIT License - feel free to use this code for learning purposes.
 ## 👨‍💻 Author
 
 **Konrad Wojdyna**   
-Learning Path: Frontend (React/TS) → Backend (Spring Boot) → DevOps (Docker/AWS)
 
 ---
-
-**Last Updated:** Day 4 - Spring Boot Setup + First Endpoint ✅
