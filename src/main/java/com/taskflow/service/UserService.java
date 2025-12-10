@@ -4,11 +4,14 @@ package com.taskflow.service;
 import com.taskflow.dto.request.RegisterRequest;
 import com.taskflow.dto.response.UserResponse;
 import com.taskflow.exception.EmailAlreadyExistsException;
+import com.taskflow.exception.UserNotFoundException;
 import com.taskflow.model.User;
 import com.taskflow.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -48,4 +51,9 @@ public class UserService {
 
         return UserResponse.fromUser(savedUser);
     }
+
+    public User getUserById(Long id){
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    }
+
 }
