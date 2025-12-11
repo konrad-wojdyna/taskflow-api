@@ -1,6 +1,8 @@
 package com.taskflow.exception;
 
+import com.sun.jdi.InvalidLineNumberException;
 import com.taskflow.dto.response.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,10 +19,14 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex){
 
-        log.warn("Validation failed: {} field error(s)", ex.getBindingResult().getErrorCount());
+    // ===================== VALIDATION ERRORS (400) =====================
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex,
+                                                          HttpServletRequest request){
+
+        log.warn("Validation error on path: {}", request.getRequestURI());
 
         Map<String, String> errors = new HashMap<>();
 
@@ -28,46 +34,108 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage()));
 
         ErrorResponse response = new ErrorResponse(
-                "Validation failed",
+               HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ErrorCode.VALIDATION_ERROR.getCode(),
+                ErrorCode.VALIDATION_ERROR.getMessage(),
+                request.getRequestURI(),
                 errors
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleEmailExists(EmailAlreadyExistsException ex){
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex,
+                                                                   HttpServletRequest request){
+        log.warn("Bad request on path: {} - {}", request.getRequestURI(), ex.getMessage());
 
-        log.warn("Email already exists: {}", ex.getMessage());
-
-        ErrorResponse response = new ErrorResponse(
-                ex.getMessage()
+        ErrorResponse response= new ErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ErrorCode.VALIDATION_ERROR.getCode(),
+                ex.getMessage(),
+                request.getRequestURI()
         );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex){
+    // ===================== AUTHENTICATION ERRORS (401) =====================
 
-        log.warn("User with id not exists, {}", ex.getMessage());
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(
+            InvalidCredentialsException ex,
+            HttpServletRequest request
+    ){
+
+        log.warn("Invalid credentials attempt on path: {}", request.getRequestURI());
 
         ErrorResponse response = new ErrorResponse(
-                ex.getMessage()
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                ErrorCode.INVALID_CREDENTIALS.getCode(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    // ===================== NOT FOUND ERRORS (404) =====================
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex,
+                                                                     HttpServletRequest request){
+
+        log.warn("User not found on path: {} - {}", request.getRequestURI(), ex.getMessage());
+
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ErrorCode.RESOURCE_NOT_FOUND.getCode(),
+                ex.getMessage(),
+                request.getRequestURI()
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex){
+    // ===================== CONFLICT ERRORS (409) =====================
 
-        log.error("Unexpected error occurred: {}", ex.getMessage(), ex);
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmailExists(EmailAlreadyExistsException ex,
+                                                           HttpServletRequest request){
+
+        log.warn("Email already exists on path: {} - {}", request.getRequestURI(), ex.getMessage());
 
         ErrorResponse response = new ErrorResponse(
-                "An unexpected error occurred");
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ErrorCode.EMAIL_ALREADY_EXISTS.getCode(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+
+    // ========== INTERNAL SERVER ERROR (500) ==========
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex,
+                                                       HttpServletRequest request){
+
+        log.error("Internal server error on path: {}", request.getRequestURI(), ex);
+
+        ErrorResponse response = new ErrorResponse(
+               HttpStatus.INTERNAL_SERVER_ERROR.value(),
+        HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+        ErrorCode.INTERNAL_ERROR.getCode(),
+        "An unexpected error occurred. Please try again later.",
+        request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-
 }

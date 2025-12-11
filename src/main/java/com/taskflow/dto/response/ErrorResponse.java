@@ -1,10 +1,27 @@
 package com.taskflow.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
-public record ErrorResponse(String message, Map<String, String> errors) {
+public record ErrorResponse(
+        LocalDateTime timestamp,
+        int status,
+        String error,
+        String code,
+        String message,
+        String path,
+        Map<String, String> errors
+) {
 
-    public ErrorResponse(String message){
-        this(message, null);
+    //Constructor without validation errors
+    public ErrorResponse(int status, String error, String code, String message, String path){
+        this(LocalDateTime.now(), status, error, code, message, path, null);
     }
+
+    //Constructor with validation errors
+    public ErrorResponse(int status, String error, String code, String message, String path, Map<String, String> errors){
+        this(LocalDateTime.now(), status, error, code, message, path, errors);
+    }
+
+
 }
