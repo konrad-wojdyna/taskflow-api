@@ -21,4 +21,20 @@ public record RegisterRequest(
         @NotBlank(message = "Name is required")
         @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
         @Pattern( regexp = "^[^0-9].*$", message = "Name cannot start with a digit")
-        String name) {}
+        String name) {
+
+        public RegisterRequest{
+                if(email != null){
+                        email = email.trim();
+                }
+
+                if(password != null){
+                        password = password.trim();
+                }
+
+                if(name != null){
+                        name = name.trim();
+                }
+        }
+
+}
