@@ -1,6 +1,7 @@
 package com.taskflow.controller;
 
 
+import com.taskflow.dto.request.LoginRequest;
 import com.taskflow.dto.request.RegisterRequest;
 import com.taskflow.dto.response.UserResponse;
 import com.taskflow.service.UserService;
@@ -35,5 +36,11 @@ public class AuthController {
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request){
         UserResponse response = userService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request){
+        UserResponse response = userService.login(request);
+        return ResponseEntity.ok(response);
     }
 }

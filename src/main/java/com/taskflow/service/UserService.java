@@ -1,9 +1,11 @@
 package com.taskflow.service;
 
 
+import com.taskflow.dto.request.LoginRequest;
 import com.taskflow.dto.request.RegisterRequest;
 import com.taskflow.dto.response.UserResponse;
 import com.taskflow.exception.EmailAlreadyExistsException;
+import com.taskflow.exception.InvalidCredentialsException;
 import com.taskflow.exception.UserNotFoundException;
 import com.taskflow.model.User;
 import com.taskflow.repository.UserRepository;
@@ -50,6 +52,23 @@ public class UserService {
         log.info("User registered successfully: {} with ID: {}", savedUser.getEmail(), savedUser.getId());
 
         return UserResponse.fromUser(savedUser);
+    }
+
+    public UserResponse login(LoginRequest request){
+
+        User user = userRepository.findByEmail(request.email()).orElseThrow(InvalidCredentialsException::new);
+
+        if(!user.getPassword().equals(request.password())){
+            throw new InvalidCredentialsException();
+        }
+
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.getCreatedAt()
+        );
+
     }
 
     public User getUserById(Long id){
