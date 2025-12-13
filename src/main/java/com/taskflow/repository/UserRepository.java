@@ -1,52 +1,33 @@
 package com.taskflow.repository;
 
 import com.taskflow.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
-public class UserRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    private final Map<Long, User> storage = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+   Optional<User> findByEmail(String email);
 
-    public User save(User user){
+   boolean existsByEmail(String email);
 
-        if(user.getId() == null){
-        user.setId(idGenerator.getAndIncrement());
-        }
+    @Query("SELECT u FROM User u WHERE u.email = :email")
+    Optional<User> findByEmailWithQuery(@Param("email") String email);
 
-        storage.put(user.getId(), user);
-        return  user;
-    }
+    @Query("SELECT u FROM User u WHERE u.createdAt > :date")
+    List<User> findRecentUsers(@Param("date") LocalDateTime date);
 
-    public boolean existsByEmail(String email){
-        return  storage.values().stream().anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
-    }
+    @Query(value = "SELECT * FROM users WHERE email LIKE %:keyword%", nativeQuery = true)
+    List<User> searchByEmailNative(@Param("keyword") String keyword);
 
-    public Optional<User> findByEmail(String email){
-        return storage.values().stream().filter(u -> u.getEmail().equalsIgnoreCase(email))
-                .findFirst();
-    }
 
-    public Optional<User> findById(Long id){
-        return Optional.ofNullable(storage.get(id));
-    }
-
-    public List<User> findAll(){
-        return new ArrayList<>(storage.values());
-    }
-
-    public void deleteAll(){
-        storage.clear();
-        idGenerator.set(1);
-    }
-
+   @Query("SELECT u FROM User u WHERE u.email = :email AND u.name = :name")
+   Optional<User> findByEmailAndName(@Param("email") String email,
+                                     @Param("name") String name);
 }
