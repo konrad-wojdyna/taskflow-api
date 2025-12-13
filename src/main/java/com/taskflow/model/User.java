@@ -1,30 +1,41 @@
 package com.taskflow.model;
 
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public User(){}
-
-    public User(Long id, String email, String password, String name){
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.name = name;
+    @PrePersist
+    protected void onCreate(){
+        createdAt = LocalDateTime.now();
     }
+
+    public User(){}
 
     public User(String email, String password, String name){
         this.email = email;
         this.password = password;
         this.name = name;
-        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
