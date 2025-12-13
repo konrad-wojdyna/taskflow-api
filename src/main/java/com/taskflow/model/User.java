@@ -3,6 +3,8 @@ package com.taskflow.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -21,6 +23,9 @@ public class User {
 
     @Column(nullable = false, length = 100)
     private String name;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -70,11 +75,15 @@ public class User {
         this.name = name;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public List<Project> getProjects() {
+        return projects;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }
