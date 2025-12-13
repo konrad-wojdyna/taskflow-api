@@ -47,6 +47,19 @@ A robust, scalable REST API for managing projects, tasks, and team collaboration
 - Maven 3.9+
 - Git
 
+## Local Development Setup
+
+### Database Setup
+# Start PostgreSQL:
+docker-compose up -d
+
+# Default development credentials:
+- Database: taskflow
+- User: taskflow
+- Password: password
+- Port: 5433 (host) → 5432 (container)
+```
+
 ### Installation
 ```bash
 # Clone repository

@@ -34,3 +34,5 @@ build/
 
 ### Application
 application-local.properties
+application-prod.properties
+*.env
