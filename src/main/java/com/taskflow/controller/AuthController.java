@@ -3,6 +3,7 @@ package com.taskflow.controller;
 
 import com.taskflow.dto.request.LoginRequest;
 import com.taskflow.dto.request.RegisterRequest;
+import com.taskflow.dto.response.AuthResponse;
 import com.taskflow.dto.response.UserResponse;
 import com.taskflow.service.UserService;
 import jakarta.validation.Valid;
@@ -39,8 +40,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request){
-        UserResponse response = userService.login(request);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request){
+        AuthResponse response = userService.login(request);
         return ResponseEntity.ok(response);
     }
 }
