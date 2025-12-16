@@ -92,4 +92,15 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
        }
 
+    /**
+     * Get user by email
+     *
+     * @param email - user email
+     * @return User entity
+     * @throws UserNotFoundException if user not found
+     */
+    public User getUserByEmail(String email){
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("email", email));
+    }
+
 }
