@@ -14,6 +14,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByOwnerId(Long ownerId);
 
 
+    /**
+     * Find all projects with owner loaded (prevent N+1)
+     *
+     * @return List of projects with owner
+     */
     @Query("SELECT p FROM Project p JOIN FETCH p.owner")
     List<Project> findAllWithOwner();
 
